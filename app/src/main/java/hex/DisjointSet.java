@@ -6,91 +6,71 @@ package hex;
 import hex.HexGame.Player;
 
 public class DisjointSet {
-    private Info[] set;
+    private int[] set;
+    private int size;
+    private int square;
 
+    // Top, Botton, Left, Right
     DisjointSet(int size) {
-        this.set = new Info[size * size];
-        for (int i = 0; i < size * size; i++) {
-            set[i] = new Info(i, size);
+        this.size = size;
+        this.square = size * size;
+        this.set = new int[this.square + 4];
+        for (int i = 0; i < this.square + 4; i++) {
+            this.set[i] = i;
         }
     }
 
-    // public int find(int node) {
-    // return findInfo(node).groupIndex;
-    // }
-
-    public Info findInfo(int index) {
-        if (this.set[index].groupIndex == index) {
-            // This returns the info of the head index
-            return this.set[index];
-        } // else if not at the head index
-        this.set[index].groupIndex = findInfo(this.set[index].groupIndex).groupIndex;
-        return this.set[index];
+    public int find(int node) {
+        if (this.set[node] == node) {
+            return node;
+        }
+        this.set[node] = find(this.set[node]);
+        return this.set[node];
     }
 
-    public void union(int start, int target, Player player) {
+    public void union(int index1, int index2, Player player) {
+        this.set[find(index1)] = find(index2);
+        if (player == Player.Blue) {
+            // Left
+            if (index1 % this.size == 0) {
+                this.set[find(index1)] = find(this.square + 2);
+            }
+            if (index2 % this.size == 0) {
+                this.set[find(index2)] = find(this.square + 2);
+            }
+            // Right
+            if (index1 % this.size == this.size - 1) {
+                this.set[find(index1)] = find(this.square + 3);
+            }
+            if (index2 % this.size == this.size - 1) {
+                this.set[find(index2)] = find(this.square + 3);
+            }
+        }
         if (player == Player.Red) {
-            var temp = 0;
+            // Top
+            if (index1 - this.size <= 0) {
+                this.set[find(index1)] = find(this.square);
+            }
+            if (index2 - this.size <= 0) {
+                this.set[find(index2)] = find(this.square);
+            }
+            // Bottom
+            if (index1 + this.size >= this.square) {
+                this.set[find(index1)] = find(this.square + 1);
+            }
+            if (index2 + this.size >= this.square) {
+                this.set[find(index2)] = find(this.square + 1);
+            }
         }
-        var first = findInfo(start);
-        var second = findInfo(target);
-        // Set the group of first to be equal to the group of the second
-        this.set[first.groupIndex].groupIndex = second.groupIndex;
-        for (int i = 0; i < 4; i++) {
-            second.edges[i] |= first.edges[i];
-            first.edges[i] |= second.edges[i];
-        }
-    }
-
-    public boolean onLeftAndRightEdges(int index) {
-        return this.set[index].edges[2] == true && this.set[index].edges[2] == this.set[index].edges[3];
-    }
-
-    public boolean onTopAndBottomEdges(int index) {
-        return this.set[index].edges[0] == true && this.set[index].edges[0] == this.set[index].edges[1];
     }
 
     @Override
     public String toString() {
         var builder = new StringBuilder();
-        for (var info : set) {
-            builder.append(info.toString() + " ");
+        for (var num : set) {
+            builder.append(String.format("%s ", num));
         }
         return builder.toString();
     }
 
-    private class Info {
-        private int groupIndex;
-        // private Player player;
-
-        // Top, Bottom, Left, Right
-        public boolean[] edges = new boolean[4];
-
-        Info(int groupIndex, int size) {
-            this.groupIndex = groupIndex;
-
-            // Top
-            if (groupIndex < size) {
-                this.edges[0] = true;
-            }
-            // Bottom
-            if (groupIndex >= size * size - size) {
-                this.edges[1] = true;
-            }
-            // Left
-            if (groupIndex % size == 0) {
-                this.edges[2] = true;
-            }
-            // Right
-            if (groupIndex % size == size - 1) {
-                this.edges[3] = true;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%d", this.groupIndex);
-        }
-
-    }
 }

@@ -21,9 +21,7 @@ public class HexGame {
             if (displayNeighbors) {
                 System.out.print("Cell " + position + ": ");
             }
-            var deleteme = getNeighbors(position - 1, Player.Blue);
-            var temp = 0;
-            for (var neighbor : deleteme) {
+            for (var neighbor : getNeighbors(position - 1, Player.Blue)) {
                 // The order of these two arguments might need to be reversed
                 set.union(position - 1, neighbor, Player.Blue);
             }
@@ -39,11 +37,9 @@ public class HexGame {
         if (this.grid[position - 1] == null) {
             this.grid[position - 1] = Player.Red;
             if (displayNeighbors) {
-                System.out.print("Cell " + position + ": ");
+                System.out.println("Cell " + position + ": " + getNeighbors(position - 1, Player.Red));
             }
-            var deleteme = getNeighbors(position - 1, Player.Red);
-            var temp = 0;
-            for (var neighbor : deleteme) {
+            for (var neighbor : getNeighbors(position - 1, Player.Red)) {
                 // Delete the player.red
                 set.union(position - 1, neighbor, Player.Red);
             }
@@ -58,10 +54,11 @@ public class HexGame {
     }
 
     private boolean gameWon(int index, Player player) {
+        var square = this.size * this.size;
         if (player == Player.Blue) {
-            return this.set.onLeftAndRightEdges(index);
+            return set.find(square + 2) == set.find(square + 3);
         } else {
-            return this.set.onTopAndBottomEdges(index);
+            return set.find(square) == set.find(square + 1);
         }
     }
 

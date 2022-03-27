@@ -7,9 +7,9 @@ import java.util.Scanner;
 public class Assignment6Driver {
     public static void main(String[] args) {
 
-        // testGame();
-        // playGame("moves1.txt");
-        // System.out.println();
+        testGame();
+        playGame("moves1.txt");
+        System.out.println();
         playGame("moves2.txt");
     }
 
@@ -22,9 +22,8 @@ public class Assignment6Driver {
                 if (scanner.hasNextLine()) {
                     Integer bluePosition = Integer.parseInt(scanner.nextLine());
                     done = game.playBlue(bluePosition, false);
-                    printGrid(game);
                     if (done) {
-                        System.out.println("Blue Won");
+                        System.out.println("Blue wins with move at position " + bluePosition + "!!");
                         printGrid(game);
                         return;
                     }
@@ -34,9 +33,8 @@ public class Assignment6Driver {
                 if (scanner.hasNextLine()) {
                     Integer redPosition = Integer.parseInt(scanner.nextLine());
                     done = game.playRed(redPosition, false);
-                    printGrid(game);
                     if (done) {
-                        System.out.println("Red Won");
+                        System.out.println("Red wins with move at position " + redPosition + "!!");
                         printGrid(game);
                         return;
                     }
