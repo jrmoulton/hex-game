@@ -8,9 +8,10 @@ public class Assignment6Driver {
     public static void main(String[] args) {
 
         testGame();
-        playGame("moves1.txt");
-        System.out.println();
-        playGame("moves2.txt");
+        // System.out.println("\n" + "-".repeat(40) + "\n");
+        // playGame("moves1.txt");
+        // System.out.println();
+        // playGame("moves2.txt");
     }
 
     private static void playGame(String filename) {
@@ -46,7 +47,7 @@ public class Assignment6Driver {
     }
 
     //
-    // TODO: You can use this to compare with the output show in the assignment
+    // DONE: You can use this to compare with the output show in the assignment
     // while working on your code
     private static void testGame() {
         HexGame game = new HexGame(11);
@@ -75,7 +76,6 @@ public class Assignment6Driver {
     // DONE: Complete this method
     private static void printGrid(HexGame game) {
         System.out.println(game.toString());
-
     }
 
 }

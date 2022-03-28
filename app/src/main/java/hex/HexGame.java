@@ -16,14 +16,15 @@ public class HexGame {
     }
 
     public boolean playBlue(int position, boolean displayNeighbors) {
+        if (displayNeighbors) {
+            System.out.println("Cell " + position + ": " + getAllNeighbors(position - 1, Player.Blue));
+        }
         if (this.grid[position - 1] == null) { // Check if the pos is open
             this.grid[position - 1] = Player.Blue;
-            if (displayNeighbors) {
-                System.out.print("Cell " + position + ": ");
-            }
-            for (var neighbor : getNeighbors(position - 1, Player.Blue)) {
-                // The order of these two arguments might need to be reversed
-                set.union(position - 1, neighbor, Player.Blue);
+            for (var neighbor : getAllNeighbors(position - 1, Player.Blue)) {
+                if (this.grid[position - 1] != null) {
+                    set.union(position - 1, neighbor - 1, Player.Blue);
+                }
             }
             if (gameWon(position - 1, Player.Blue)) {
                 return true;
@@ -34,14 +35,15 @@ public class HexGame {
     }
 
     public boolean playRed(int position, boolean displayNeighbors) {
+        if (displayNeighbors) {
+            System.out.println("Cell " + position + ": " + getAllNeighbors(position - 1, Player.Blue));
+        }
         if (this.grid[position - 1] == null) {
             this.grid[position - 1] = Player.Red;
-            if (displayNeighbors) {
-                System.out.println("Cell " + position + ": " + getNeighbors(position - 1, Player.Red));
-            }
-            for (var neighbor : getNeighbors(position - 1, Player.Red)) {
-                // Delete the player.red
-                set.union(position - 1, neighbor, Player.Red);
+            for (var neighbor : getAllNeighbors(position - 1, Player.Red)) {
+                if (this.grid[position - 1] != null) {
+                    set.union(position - 1, neighbor - 1, Player.Red);
+                }
             }
             if (gameWon(position - 1, Player.Red)) {
                 return true;
@@ -62,36 +64,80 @@ public class HexGame {
         }
     }
 
-    private ArrayList<Integer> getNeighbors(int index, Player player) {
+    // private ArrayList<Integer> getNeighbors(int index, Player player) {
+    // var list = new ArrayList<Integer>();
+
+    // // Get left neighbor
+    // if (index % this.size != 0 && this.grid[index - 1] != null && this.grid[index
+    // - 1].equals(player)) {
+    // list.add(index - 1);
+    // }
+    // // Get the right neighbor
+    // if (index % this.size != this.size - 1 && this.grid[index + 1] != null &&
+    // this.grid[index + 1].equals(player)) {
+    // list.add(index + 1);
+    // }
+    // // Get above left
+    // if (index - this.size > 0 && this.grid[index - this.size] != null
+    // && this.grid[index - this.size].equals(player)) {
+    // list.add(index - this.size);
+    // }
+    // // Get above right
+    // if (index - this.size > 0 && this.grid[index - this.size + 1] != null &&
+    // index % this.size != this.size - 1
+    // && this.grid[index - this.size + 1].equals(player)) {
+    // list.add(index - this.size + 1);
+    // }
+    // // Get below right
+    // if (index + this.size < this.size * this.size && this.grid[index + this.size]
+    // != null
+    // && this.grid[index + this.size].equals(player)) {
+    // list.add(index + this.size);
+    // }
+    // // Get below left
+    // if (index + this.size < this.size * this.size && this.grid[index + this.size
+    // - 1] != null
+    // && this.grid[index + this.size - 1].equals(player)) {
+    // list.add(index + this.size - 1);
+    // }
+    // return list;
+    // }
+
+    public ArrayList<Integer> getAllNeighbors(int index, Player player) {
+
         var list = new ArrayList<Integer>();
 
         // Get left neighbor
-        if (index % this.size != 0 && this.grid[index - 1] != null && this.grid[index - 1].equals(player)) {
-            list.add(index - 1);
+        if (index % this.size != 0) {
+            list.add(index - 1 + 1);
+        } else if (player == Player.Blue) {
+            list.add(this.size * this.size + 2 + 1);
         }
         // Get the right neighbor
-        if (index % this.size != this.size - 1 && this.grid[index + 1] != null && this.grid[index + 1].equals(player)) {
-            list.add(index + 1);
+        if (index % this.size != this.size - 1) {
+            list.add(index + 1 + 1);
+        } else if (player == Player.Blue) {
+            list.add(this.size * this.size + 3 + 1);
         }
         // Get above left
-        if (index - this.size > 0 && this.grid[index - this.size] != null
-                && this.grid[index - this.size].equals(player)) {
-            list.add(index - this.size);
+        if (index - this.size > 0) {
+            list.add(index - this.size + 1);
+        } else if (player == Player.Red) {
+            list.add(this.size * this.size + 1);
         }
         // Get above right
-        if (index - this.size > 0 && this.grid[index - this.size + 1] != null
-                && this.grid[index - this.size + 1].equals(player)) {
-            list.add(index - this.size + 1);
+        if (index - this.size > 0) {
+            list.add(index - this.size + 1 + 1);
         }
         // Get below right
-        if (index + this.size < this.size * this.size && this.grid[index + this.size] != null
-                && this.grid[index + this.size].equals(player)) {
-            list.add(index + this.size);
+        if (index + this.size < this.size * this.size && index % this.size != this.size - 1) {
+            list.add(index + this.size + 1);
+        } else if (player == Player.Red) {
+            list.add(this.size * this.size + 1);
         }
         // Get below left
-        if (index + this.size < this.size * this.size && this.grid[index + this.size - 1] != null
-                && this.grid[index + this.size - 1].equals(player)) {
-            list.add(index + this.size - 1);
+        if (index + this.size < this.size * this.size && index % this.size != 0) {
+            list.add(index + this.size - 1 + 1);
         }
         return list;
     }

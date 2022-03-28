@@ -16,12 +16,12 @@ public class DisjointSet {
         this.square = size * size;
         this.set = new int[this.square + 4];
         for (int i = 0; i < this.square + 4; i++) {
-            this.set[i] = i;
+            this.set[i] = -1;
         }
     }
 
     public int find(int node) {
-        if (this.set[node] == node) {
+        if (this.set[node] < 0) {
             return node;
         }
         this.set[node] = find(this.set[node]);
@@ -29,39 +29,48 @@ public class DisjointSet {
     }
 
     public void union(int index1, int index2, Player player) {
-        this.set[find(index1)] = find(index2);
-        if (player == Player.Blue) {
-            // Left
-            if (index1 % this.size == 0) {
-                this.set[find(index1)] = find(this.square + 2);
-            }
-            if (index2 % this.size == 0) {
-                this.set[find(index2)] = find(this.square + 2);
-            }
-            // Right
-            if (index1 % this.size == this.size - 1) {
-                this.set[find(index1)] = find(this.square + 3);
-            }
-            if (index2 % this.size == this.size - 1) {
-                this.set[find(index2)] = find(this.square + 3);
-            }
+        if (this.set[find(index2)] < this.set[find(index1)]) {
+            this.set[find(index2)] += this.set[find(index1)];
+            this.set[find(index1)] = find(index2);
+        } else {
+            this.set[find(index1)] += this.set[find(index2)];
+            this.set[find(index2)] = find(index1);
         }
-        if (player == Player.Red) {
-            // Top
-            if (index1 - this.size <= 0) {
-                this.set[find(index1)] = find(this.square);
-            }
-            if (index2 - this.size <= 0) {
-                this.set[find(index2)] = find(this.square);
-            }
-            // Bottom
-            if (index1 + this.size >= this.square) {
-                this.set[find(index1)] = find(this.square + 1);
-            }
-            if (index2 + this.size >= this.square) {
-                this.set[find(index2)] = find(this.square + 1);
-            }
-        }
+        // if (find(index1) < this.square) {
+        // if (player == Player.Blue) {
+        // // Left
+        // if (index1 % this.size == 0 || index2 % this.size == 0) {
+        // if (this.set[find(index1)] != find(this.square + 2)) {
+        // this.set[find(this.square + 2)] = this.set[find(index1)];
+        // this.set[find(index1)] = find(this.square + 2);
+        // }
+        // }
+        // // Right
+        // if (index1 % this.size == this.size - 1 || index2 % this.size == this.size -
+        // 1) {
+        // if (this.set[find(index1)] != find(this.square + 3)) {
+        // this.set[find(this.square + 3)] = this.set[find(index1)];
+        // this.set[find(index1)] = find(this.square + 3);
+        // }
+        // }
+        // }
+        // if (player == Player.Red) {
+        // // Top
+        // if (index1 - this.size <= 0 || index2 - this.size <= 0) {
+        // if (this.set[find(index1)] != find(this.square)) {
+        // this.set[find(this.square)] = this.set[find(index1)];
+        // this.set[find(index1)] = find(this.square);
+        // }
+        // }
+        // // Bottom
+        // if (index1 + this.size >= this.square || index2 + this.size >= this.square) {
+        // if (this.set[find(index1)] != find(this.square + 1)) {
+        // this.set[find(this.square + 1)] = this.set[find(index1)];
+        // this.set[find(index1)] = find(this.square + 1);
+        // }
+        // }
+        // }
+        // }
     }
 
     @Override
