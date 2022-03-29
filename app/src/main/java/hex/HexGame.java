@@ -12,40 +12,40 @@ public class HexGame {
     HexGame(int size) {
         this.size = size;
         this.grid = new Player[size * size];
-        this.set = new DisjointSet(size);
+        this.set = new DisjointSet(size * size);
     }
 
+    /*
+     * Mark the given position as blue and return true if there is a blue chain from
+     * the left edge to the right edge
+     */
     public boolean playBlue(int position, boolean displayNeighbors) {
-        if (displayNeighbors) {
-            System.out.println("Cell " + position + ": " + getAllNeighbors(position - 1, Player.Blue));
-        }
-        if (this.grid[position - 1] == null) { // Check if the pos is open
-            this.grid[position - 1] = Player.Blue;
-            for (var neighbor : getAllNeighbors(position - 1, Player.Blue)) {
-                if (this.grid[position - 1] != null) {
-                    set.union(position - 1, neighbor - 1, Player.Blue);
-                }
-            }
-            if (gameWon(position - 1, Player.Blue)) {
-                return true;
-            }
-        }
-        return false;
-
+        return play(position - 1, displayNeighbors, Player.Blue);
     }
 
+    /*
+     * Mark the given position as red and return true if there is a red chain from
+     * the left edge to the right edge
+     */
     public boolean playRed(int position, boolean displayNeighbors) {
+        return play(position - 1, displayNeighbors, Player.Red);
+    }
+
+    private boolean play(int index, boolean displayNeighbors, Player player) {
+        var neighbors = getNeighbors(index, player);
         if (displayNeighbors) {
-            System.out.println("Cell " + position + ": " + getAllNeighbors(position - 1, Player.Blue));
+            System.out.println("Cell " + (index) + ": " + neighbors);
         }
-        if (this.grid[position - 1] == null) {
-            this.grid[position - 1] = Player.Red;
-            for (var neighbor : getAllNeighbors(position - 1, Player.Red)) {
-                if (this.grid[position - 1] != null) {
-                    set.union(position - 1, neighbor - 1, Player.Red);
+        if (posAvaliable(index)) {
+            this.grid[index] = player;
+            for (var neighbor : neighbors) {
+                var neighborIdx = neighbor - 1;
+                if (isSpecialEdgePos(neighborIdx) || neighborIsSameColor(player, neighborIdx)) {
+                    // Link the two sets
+                    set.union(index, neighborIdx);
                 }
             }
-            if (gameWon(position - 1, Player.Red)) {
+            if (gameWon(index, player)) {
                 return true;
             } else {
                 return false;
@@ -53,6 +53,19 @@ public class HexGame {
         } else {
             return false;
         }
+
+    }
+
+    private boolean neighborIsSameColor(Player player, int neighborIdx) {
+        return this.grid[neighborIdx] == player;
+    }
+
+    private boolean isSpecialEdgePos(int neighborIdx) {
+        return neighborIdx >= this.size * this.size;
+    }
+
+    private boolean posAvaliable(int index) {
+        return this.grid[index] == null;
     }
 
     private boolean gameWon(int index, Player player) {
@@ -64,82 +77,72 @@ public class HexGame {
         }
     }
 
-    // private ArrayList<Integer> getNeighbors(int index, Player player) {
-    // var list = new ArrayList<Integer>();
-
-    // // Get left neighbor
-    // if (index % this.size != 0 && this.grid[index - 1] != null && this.grid[index
-    // - 1].equals(player)) {
-    // list.add(index - 1);
-    // }
-    // // Get the right neighbor
-    // if (index % this.size != this.size - 1 && this.grid[index + 1] != null &&
-    // this.grid[index + 1].equals(player)) {
-    // list.add(index + 1);
-    // }
-    // // Get above left
-    // if (index - this.size > 0 && this.grid[index - this.size] != null
-    // && this.grid[index - this.size].equals(player)) {
-    // list.add(index - this.size);
-    // }
-    // // Get above right
-    // if (index - this.size > 0 && this.grid[index - this.size + 1] != null &&
-    // index % this.size != this.size - 1
-    // && this.grid[index - this.size + 1].equals(player)) {
-    // list.add(index - this.size + 1);
-    // }
-    // // Get below right
-    // if (index + this.size < this.size * this.size && this.grid[index + this.size]
-    // != null
-    // && this.grid[index + this.size].equals(player)) {
-    // list.add(index + this.size);
-    // }
-    // // Get below left
-    // if (index + this.size < this.size * this.size && this.grid[index + this.size
-    // - 1] != null
-    // && this.grid[index + this.size - 1].equals(player)) {
-    // list.add(index + this.size - 1);
-    // }
-    // return list;
-    // }
-
-    public ArrayList<Integer> getAllNeighbors(int index, Player player) {
-
+    private ArrayList<Integer> getNeighbors(int index, Player player) {
         var list = new ArrayList<Integer>();
 
+        // Above
+        if (notOnTopRow(index)) {
+            // Get above left
+            list.add(index - this.size);
+            // Get above right
+            if (notOnRightRow(index)) {
+                list.add(index - this.size + 1);
+            }
+        } else if (player == Player.Red) {
+            // If on Top Row add special Top Row element
+            list.add(this.size * this.size);
+        }
+
+        // Below
+        if (notOnBottomRow(index)) {
+            // Get below right
+            list.add(index + this.size);
+            // Get below left
+            if (notOnLeftRow(index)) {
+                list.add(index + this.size - 1);
+            }
+        } else if (player == Player.Red) {
+            // If on Bottom Row add special Bottom Row element
+            list.add(this.size * this.size + 1);
+        }
+
         // Get left neighbor
-        if (index % this.size != 0) {
-            list.add(index - 1 + 1);
+        if (notOnLeftRow(index)) {
+            list.add(index - 1);
         } else if (player == Player.Blue) {
-            list.add(this.size * this.size + 2 + 1);
+            // If on left Row add special Left Row element
+            list.add(this.size * this.size + 2);
         }
+
         // Get the right neighbor
-        if (index % this.size != this.size - 1) {
-            list.add(index + 1 + 1);
+        if (notOnRightRow(index)) {
+            list.add(index + 1);
         } else if (player == Player.Blue) {
-            list.add(this.size * this.size + 3 + 1);
+            // If on Right Row add special Right Row element
+            list.add(this.size * this.size + 3);
         }
-        // Get above left
-        if (index - this.size > 0) {
-            list.add(index - this.size + 1);
-        } else if (player == Player.Red) {
-            list.add(this.size * this.size + 1);
-        }
-        // Get above right
-        if (index - this.size > 0) {
-            list.add(index - this.size + 1 + 1);
-        }
-        // Get below right
-        if (index + this.size < this.size * this.size && index % this.size != this.size - 1) {
-            list.add(index + this.size + 1);
-        } else if (player == Player.Red) {
-            list.add(this.size * this.size + 1);
-        }
-        // Get below left
-        if (index + this.size < this.size * this.size && index % this.size != 0) {
-            list.add(index + this.size - 1 + 1);
+
+        // Increment all of the numbers to change them from indicies to positions
+        for (int i = 0; i < list.size(); i++) {
+            list.set(i, list.get(i) + 1);
         }
         return list;
+    }
+
+    private boolean notOnLeftRow(int index) {
+        return index % this.size != 0;
+    }
+
+    private boolean notOnBottomRow(int index) {
+        return index + this.size < this.size * this.size;
+    }
+
+    private boolean notOnRightRow(int index) {
+        return index % this.size != this.size - 1;
+    }
+
+    private boolean notOnTopRow(int index) {
+        return index - this.size >= 0;
     }
 
     @Override
@@ -148,7 +151,7 @@ public class HexGame {
         var count = 0;
         for (int i = 0; i < this.grid.length; i++) {
             var player = this.grid[i];
-            if (i % this.size == 0) {
+            if (isOnLeftRow(i)) {
                 builder.append("\n");
                 builder.append(" ".repeat(count));
                 count += 1;
@@ -164,7 +167,11 @@ public class HexGame {
         return builder.toString();
     }
 
-    public enum Player {
+    private boolean isOnLeftRow(int i) {
+        return i % this.size == 0;
+    }
+
+    private enum Player {
         Red,
         Blue,
     }

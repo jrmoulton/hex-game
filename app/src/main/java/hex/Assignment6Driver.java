@@ -6,12 +6,11 @@ import java.util.Scanner;
 
 public class Assignment6Driver {
     public static void main(String[] args) {
-
         testGame();
-        // System.out.println("\n" + "-".repeat(40) + "\n");
-        // playGame("moves1.txt");
-        // System.out.println();
-        // playGame("moves2.txt");
+        System.out.println("\n" + "-".repeat(40) + "\n");
+        playGame("moves1.txt");
+        System.out.println();
+        playGame("moves2.txt");
     }
 
     private static void playGame(String filename) {
@@ -46,7 +45,6 @@ public class Assignment6Driver {
         }
     }
 
-    //
     // DONE: You can use this to compare with the output show in the assignment
     // while working on your code
     private static void testGame() {
